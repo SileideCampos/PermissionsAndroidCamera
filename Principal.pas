@@ -20,8 +20,15 @@ type
     procedure TakePhotoFromCameraAction1DidFinishTaking(Image: TBitmap);
   private
     { Private declarations }
+{$IF CompilerVersion >= 35.0}
+    // after Delphi 11 Alexandria
+    procedure resultadoPermissao(Sender: TObject; const APermissions: TClassicStringDynArray; const resultados: TClassicPermissionStatusDynArray);
+    procedure problemasPermissao(Sender: TObject; const APermissions: TClassicStringDynArray; const APostRationaleProc: TProc);
+{$ELSE}
+    // before Delphi 11 Alexandria
     procedure resultadoPermissao(Sender: TObject; const APermissions: TArray<string>; const resultados: TArray<TPermissionStatus>);
     procedure problemasPermissao(Sender: TObject; const APermissions: TArray<string>; const APostRationaleProc: TProc);
+{$ENDIF}
   public
     { Public declarations }
     permissaoCamera, permissaoEscreverArquivos, permissaoLerArquivos: String;
@@ -52,13 +59,25 @@ begin
   PermissionsService.RequestPermissions([permissaoCamera, permissaoEscreverArquivos, permissaoLerArquivos], resultadoPermissao, problemasPermissao);
 end;
 
+{$IF CompilerVersion >= 35.0}
+    // after Delphi 11 Alexandria
+procedure TForm1.resultadoPermissao(Sender: TObject; const APermissions: TClassicStringDynArray; const resultados: TClassicPermissionStatusDynArray);
+{$ELSE}
+    // before Delphi 11 Alexandria
 procedure TForm1.resultadoPermissao(Sender: TObject; const APermissions: TArray<string>; const resultados: TArray<TPermissionStatus>);
+{$ENDIF}
 begin
   if ((Length(resultados) = 3) and (resultados[0] = TPermissionStatus.Granted) and (resultados[1] = TPermissionStatus.Granted) and (resultados[2] = TPermissionStatus.Granted))then
     TakePhotoFromCameraAction1.Execute;
 end;
 
+{$IF CompilerVersion >= 35.0}
+    // after Delphi 11 Alexandria
+procedure TForm1.problemasPermissao(Sender: TObject; const APermissions: TClassicStringDynArray; const APostRationaleProc: TProc);
+{$ELSE}
+    // before Delphi 11 Alexandria
 procedure TForm1.problemasPermissao(Sender: TObject; const APermissions: TArray<string>; const APostRationaleProc: TProc);
+{$ENDIF}
 begin
   //Pode ser colocada uma msg de que a permissão foi negada e que algumas coisas não irão funcionar
   //direciona novamente p a msg de permissão
